@@ -1,0 +1,1095 @@
+<!DOCTYPE html>
+<head>
+  <meta charset="utf-8">
+
+  <link rel="stylesheet" href="css/styleFinal.css" type="text/css" media="screen"/>
+  <link rel="stylesheet" href="http://cdn.static-economist.com/sites/all/themes/econfinal/styles/reset.css">
+  <link type="text/css" rel="stylesheet" media="all" href="http://cdn.static-economist.com/sites/all/themes/econfinal/styles/ec-custom-fonts.css">
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+  <script src="http://d3js.org/queue.v1.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.13.1/lodash.min.js"></script>
+  <script src="js/rating.min.js"></script>
+  <script type="text/javascript" src="http://infographics.economist.com/js_libraries/infographic_mobile.js"></script>
+  <script src="js/d3.slider.js"></script>
+  <script src="js/variables.js"></script>
+
+
+</head>
+
+<body>
+
+<div id="header">
+<div id="block"></div>
+<h1>Broadway prediction model</h1>
+<h2 syle="margin-bottom: 8px;">The success of Hamilton compared to your own show</h2>
+</div>
+</div>
+
+  <div id="content">
+  <div id="main-wrapper">
+  <div id="controls">
+  <div class="sections" style="padding-bottom: 40px;">
+  <div id="scalecontrol">
+    <div class="optionHeading">TYPE</div>
+    <div class="buttonTYPE currentTYPE" data-val-mus="1">Musical</div>
+    <div class="buttonTYPE" data-val-mus="0">Play</div>
+  </div>
+  <div id="scalecontrol">
+    <div class="optionHeading">ORIGIN</div>
+    <div class="buttonOR currentOR" data-origin="1">Original</div>
+    <div class="buttonOR" data-origin="0">Revival</div>
+  </div>
+  <div id="speedcontrol">
+    <div class="optionHeading">GENRE</div>
+    <div class="buttonGEN" data-gen="0">Comedy</div>
+    <div class="buttonGEN" data-gen="1">Drama</div>
+    <div class="buttonGEN currentGEN" data-gen="2">Other</div>
+  </div>
+  </div>
+  <div class="sections" style="padding-bottom: 40px;">
+  <div id="MOVIE">
+    <div class="optionHeading">MOVIE BASIS</div>
+    <div class="buttonMOV" data-mov="1">Disney</div>
+    <div class="buttonMOV" data-mov="0">Non-Disney</div>
+    <div class="buttonMOV currentMOV" data-mov="2">None</div>
+  </div>
+    <div id="sliderWidth2ndRowMovie">
+    <div class="optionHeadingSliders">CAST</div>
+    <div id="castslider" style="width:100px;" class="sliderholder"></div>
+  </div>
+  <div id="sliderWidth2ndRow">
+    <div class="optionHeadingSliders">THEATRE</div>
+    <div id="thslider" style="width:150px;"  class="sliderholder"></div>
+  </div>
+  </div>
+
+
+<div id="controls">
+<div id="shop"></div>
+</div>
+
+
+<!-- end Controls -->
+</div><!-- @end #main-wrapper -->
+
+</div>
+
+
+<div id="content2">
+<div id="main-wrapper" style="padding-top: 0px;">
+<div id="container">
+<div id="controls">
+
+  <div class="buttons2">
+  <div class="lineCSS headRev">Revenue</div>
+  <div class="lineCSS YP" data-val="0">Your play</div>
+  <div class="lineCSS AV" data-val="0">Broadway average</div>
+  <div class="lineCSS HAM" data-val="0">Hamilton</div>
+  </div>
+  <div class="buttons2">
+  <div id="RevSwitch"class="lineCSS space">weekly, $m</div>
+  <div class="lineValCSS YP" style="font-size: 28px;" data-val="0"></div>
+  <div class="lineValCSS AV" data-val="0">$0.9m</div>
+  <div class="lineValCSS HAM" data-val="0">$1.63m</div>
+  </div>
+  <div class="buttons2">
+  <div class="lineCSS">first 9 months</div>
+  </div>
+</div>
+
+
+<div id="chart"></div>
+
+<div id="update">
+<div id="buttons">
+  <div class="button1" data-val="A">Cumulative</div>
+  <div class="button1 current1" data-val="W">Weekly</div>
+  <div class="clr"></div>
+</div>
+</div>
+
+<div class="sections" style="padding-bottom: 40px;">
+<div id="scalecontrol">
+<div class="optionHeading" style="width: 200px;">NEW YORK TIMES REVIEW</div>
+<div class="buttonNYT currentNYT" data-nyt="1">Good</div>
+<div class="buttonNYT" data-nyt="0">Bad</div>
+</div>
+<div id="USAtoday">
+<div class="optionHeading">USA TODAY REVIEW</div>
+<div class="buttonUSA currentUSA" data-usa="5">Good</div>
+<div class="buttonUSA" data-usa="1">Bad</div>
+</div>
+
+<div id="TONY">
+  <div class="optionHeadingSlidersTony">MAJOR TONY AWARDS</div>
+  <div id="TONYslider" style="width:200px;" class="sliderholder"></div>
+</div>
+</div>
+
+<p id="source">Sources: The Broadway League; Internet Broadway Database; DidHeLikeIt.com; The Ulmer Scale; Jeffrey Simonoff, New York University; <span class="it">The Economist</span>​​</p>
+</div>
+</div><!-- @end #main-wrapper -->
+</div>
+
+  <script>
+
+
+var margin = {top: 20, right: 30, bottom: 50, left: 65},
+    width = 595 - margin.left - margin.right,
+    height = 300 - margin.top - margin.bottom;
+
+
+var formatYaxis = d3.format(".2s");
+
+// var formatValue = d3.format(".6s");
+
+var parseDate = d3.time.format("%m/%d/%Y").parse;
+
+
+// seats formatter:
+var formatter = d3.format(",0f");
+var tickFormatter = function(d) {
+return formatter(d) + " Seats";
+}
+
+var x = d3.time.scale()
+    .range([0, width]);
+
+ var xA = d3.scale.linear()
+    .range([0, width]);
+
+var y = d3.scale.linear()
+    .range([height, 0]).domain([0,  120000000]);
+
+var yA = d3.scale.linear()
+    .domain([0, 1])
+    .range([height, 0]);
+
+var color = d3.scale.ordinal().range(["#A15F7F", "#70C7DB"]);
+
+    // var barChartHeight = 130;
+var areaChartHeight = 500;
+var tagColour = "#e11b17";
+
+var colHighlighted = "#FD9D28";
+var colUnhighlighted = "#dddddd";
+var colourButtonOff = "#ffffff";   // white
+var colourButtonOn = "#00699f"; // blue
+var highlightColour = "#9a404f";
+var colourTint = "#7fc9c7";
+var p99Colour = "#3dbbd1";
+
+
+var bisectDate = d3.bisector(function(d) { return d.date; }).left,
+formatValue = d3.format(",.3f"),
+formatCurrency = function(d) { return "$" + formatValue(d); };
+
+
+// d3.selectAll(".button1").on("click", function() {
+// 		Stack = d3.select(this).attr("data-val");
+// 		d3.select(".current1").classed("current1", false);
+// 		d3.select(this).classed("current1", true);
+//     ChangeBackground();
+// 		makeChartsPerWeek(Stack);
+//     return Stack;
+// 	});
+
+
+var currnentState = "W";
+
+    var D2 = 0;
+    var A2 = 147.5;
+    // var B2 = A2;
+    var B2 = 147.5;
+    var C2 = 1500;
+    var E2 = 1;
+    var F2 = 1;
+    var G2 = 45;
+    var H2 = 0; // Disnay ?
+    var I2 = 0; // is movie
+    var J2 = 1; // NYT GOOD
+    var K2 = 5;
+    var L2 = 3;
+    var M2 = 0;
+    var N2 = 0;
+    var O2 = 1;
+
+    var currentCastSize  =  45,
+    currentTH  =  1500,
+    currentAC1 = 200,
+    currentAC2 = 100,
+    currentPG = 1,
+    currentTONY = 3;
+
+
+
+
+var xAxis = d3.svg.axis()
+    .scale(x)
+    .orient("bottom")
+    // .ticks(6)
+    .ticks(d3.time.months, 1)
+    .tickFormat(d3.time.format("%b"));
+    // .tickFormat(d3.time.format("%m"))
+
+
+var yAxis = d3.svg.axis()
+    .scale(y)
+    .orient("left")
+    .tickSize(-width)
+    .ticks(7)
+    .tickFormat(function(d) { return d/1000});;
+
+var line = d3.svg.line()
+    .interpolate("step")
+    .x(function(d) { return x(d.date); })
+    .y(function(d) { return y(d.temperature); });
+
+
+
+var svg = d3.select("#chart").append("svg").classed("wrapper2", true)
+    .attr("width", width + margin.left + margin.right)
+    .attr("height", height + margin.top + margin.bottom)
+  .append("g")
+    .attr("transform", "translate(" + 25 + "," + margin.top + ")");
+
+
+queue()
+	.defer(d3.csv, 'data/dataBW2.csv')
+	.defer(d3.csv, 'data/dataBW_cum.csv')
+	.await(getData);
+
+function getData(error, data, data2) {
+          if (error) throw error;
+
+          var currnentState = "W";
+
+
+           var cast_slider = d3.slider().min(10).max(90).showRange(true).value(currentCastSize)
+             .callback(brushedCAST);
+
+           d3.select("#castslider").call(cast_slider);
+
+
+           var theatersizes = [
+                          597,
+                          650	,
+                          740	,
+                          766	,
+                          805	,
+                          840	,
+                          922	,
+                          945	,
+                          1006	,
+                          1009	,
+                          1018	,
+                          1055	,
+                          1066	,
+                          1078	,
+                          1079	,
+                          1080	,
+                          1084	,
+                          1091	,
+                          1094	,
+                          1096	,
+                          1125	,
+                          1186	,
+                          1228	,
+                          1235	,
+                          1400	,
+                          1424	,
+                          1443	,
+                          1460	,
+                          1467	,
+                          1519	,
+                          1526	,
+                          1612	,
+                          1645	,
+                          1709	,
+                          1710	,
+                          1743	,
+                          1747	,
+                          1761	,
+                          1933	,
+                          1938];
+
+           var th_slider = d3.slider().min(597).max(1938).showRange(true).value(currentTH).stepValues(theatersizes)
+             .callback(brushedTH);
+           d3.select("#thslider").call(th_slider);
+
+            var ac1Score = [
+                            "A+",
+                            "A",
+                            "B+",
+                            "B",
+                            "C",
+                            "D",
+                            "No stars"]
+
+           var TONY_slider = d3.slider().min(1).max(6).stepValues([1,2,3,4,5,6]).showRange(true).value(currentTONY)
+             .callback(brushedTONY);
+           d3.select("#TONYslider").call(TONY_slider);
+
+
+              d3.selectAll(".buttonTYPE").on("click", function() {
+              var val5 = d3.select(this).attr("data-val-mus");
+              d3.select(".currentTYPE").classed("currentTYPE", false);
+              d3.select(this).classed("currentTYPE", true);
+              heckTYPE = val5;
+              F2 = parseInt(heckTYPE);
+              makeChartsPerWeek(currnentState)
+              return F2;
+              });
+
+              d3.selectAll(".buttonOR").on("click", function() {
+              var val5 = d3.select(this).attr("data-origin");
+              d3.select(".currentOR").classed("currentOR", false);
+              d3.select(this).classed("currentOR", true);
+              heckOR = val5;
+              E2 = parseInt(heckOR);
+              makeChartsPerWeek(currnentState)
+              return E2;
+              });
+
+
+              d3.selectAll(".buttonGEN").on("click", function() {
+              var val5 = d3.select(this).attr("data-gen");
+              d3.select(".currentGEN").classed("currentGEN", false);
+              d3.select(this).classed("currentGEN", true);
+              heckGEN = val5;
+              GENRE_Var = parseInt(heckGEN);
+              if (GENRE_Var == 0) {
+                M2 = 1;
+                N2 = 0;
+              } else if (GENRE_Var == 1) {
+                M2 = 0;
+                N2 = 1;
+              } else if (GENRE_Var == 2) {
+                M2 = 0;
+                N2 = 0;
+              }
+              // update();
+              makeChartsPerWeek(currnentState)
+
+              return M2;
+              });
+
+              d3.selectAll(".buttonMOV").on("click", function() {
+                var val5 = d3.select(this).attr("data-mov");
+                d3.select(".currentMOV").classed("currentMOV", false);
+                d3.select(this).classed("currentMOV", true);
+
+                currnentStateMov = val5;
+                var MOV_Var = parseInt(currnentStateMov);
+                if (MOV_Var == 2) {
+                  H2 = 0;
+                  I2 = 0;
+                } else if (MOV_Var == 1) {
+                  H2 = 1;
+                  I2 = 0;
+                } else if (MOV_Var == 0) {
+                  H2 = 0;
+                  I2 = 1;
+                }
+
+                // console.log(currnentState)
+                makeChartsPerWeek(currnentState)
+
+                return I2;
+
+               });
+
+
+
+              d3.selectAll(".buttonNYT").on("click", function() {
+                var val5 = d3.select(this).attr("data-nyt");
+                d3.select(".currentNYT").classed("currentNYT", false);
+                d3.select(this).classed("currentNYT", true);
+                heckNYT = val5;
+                J2 = parseInt(heckNYT);
+                makeChartsPerWeek(currnentState)
+                return J2;
+              });
+
+              d3.selectAll(".buttonUSA").on("click", function() {
+                var val5 = d3.select(this).attr("data-usa");
+                d3.select(".currentUSA").classed("currentUSA", false);
+                d3.select(this).classed("currentUSA", true);
+                heckUSA = val5;
+                K2 = parseInt(heckUSA);
+                makeChartsPerWeek(currnentState)
+
+                return K2;
+                });
+
+
+          ///////////////////////////////////////////// OLD /////////////////////////////////////////////
+
+          d3.selectAll(".button1").on("click", function() {
+                  var Stack = d3.select(this).attr("data-val");
+                  d3.select(".current1").classed("current1", false);
+                  d3.select(this).classed("current1", true);
+                  makeChartsPerWeek(Stack);
+                  ChangeBackground(Stack);
+                  currnentState = Stack;
+                  return currnentState;
+            });
+
+
+
+            function brushedCAST () {
+                // update();
+                currentCastSize = cast_slider.value();
+                // d3.select("#castvalue").text(currentCastSize)
+                // console.log(currentCastSize)
+                // return currentCastSize;
+                G2 = currentCastSize;
+                makeChartsPerWeek(currnentState)
+                return G2;
+            }
+
+
+            function brushedTH () {
+                currentTH = th_slider.value();
+                C2 = currentTH;
+                makeChartsPerWeek(currnentState)
+                return C2;
+            }
+
+
+            function brushedTONY () {
+                // update();
+                currentTONY = TONY_slider.value();
+                // d3.select("#TONYvalue").text(currentTONY)
+                // console.log(currentTONY)
+                L2 = currentTONY;
+                makeChartsPerWeek(currnentState)
+                return L2;
+            }
+
+
+            // STAR RATINGS
+
+            var ratingScale = d3.scale.linear()
+                              .range([0, 295]).domain([1, 5]);
+
+            var ratingScaleWriter = d3.scale.linear()
+                              .range([1, 100000000]).domain([1, 5]);
+
+
+            (function() {
+               'use strict';
+               // SHOP ELEMENT
+               var shop = document.querySelector('#shop');
+               // DUMMY DATA
+               var data = [
+                 {
+                   title: "ACTOR SCORE: LEAD",
+                   rating: 3
+                 },
+                 {
+                  title: "ACTOR SCORE: 2ND",
+                   rating: 3
+                 },
+                 {
+                  title: "WRITER/COMPOSER",
+                   rating: 1
+                 }
+               ];
+               // INITIALIZE
+               (function init() {
+                 for (var i = 0; i < data.length; i++) {
+                   addRatingWidget(buildShopItem(data[i]), data[i]);
+                 }
+               })();
+               // BUILD SHOP ITEM
+               function buildShopItem(data) {
+                 var shopItem = document.createElement('div');
+                 var html = '<div class="c-shop-item__details">' +
+                     '<h3 class="c-shop-item__title">' + data.title + '</h3>' +
+                     '<ul class="c-rating"></ul>' +
+                   '</div>';
+                //  shopItem.classList.add('c-shop-item');
+                 shopItem.innerHTML = html;
+                 shop.appendChild(shopItem);
+                 return shopItem;
+               }
+               // ADD RATING WIDGET
+               function addRatingWidget(shopItem, data) {
+                 var ratingElement = shopItem.querySelector('.c-rating');
+                 var currentRating = data.rating;
+                 var maxRating = 5;
+                 var callback = function(rating) {
+
+                   var actorA = [];
+
+                   if (data.title == "ACTOR SCORE: LEAD") {
+                     var actor = ratingScale(rating);
+                     A2 = actor;
+                      //  if (actor >= B2) {
+                      //    B2 = A2;
+                      //    A2 = actor;
+                      //  } else {
+                      //    A2 = B2;
+                      //    B2 = A2;
+                      //  }
+                      //  actorA.push(actor);
+                   } else if (data.title == "ACTOR SCORE: 2ND") {
+                     var actor2 = ratingScale(rating);
+                    //    if (actor2 <= A2) { B2 = actor2} else { B2 = A2 }
+                      //  actorA.push(actor2);
+                      B2 = actor2;
+                   } else if (data.title == "WRITER/COMPOSER") {
+                     var actorW = ratingScaleWriter(rating);
+                     O2 = ratingScaleWriter(actorW);
+                    //  console.log(O2)
+                     makeChartsPerWeek(currnentState)
+                    //  return O2;
+                   }
+
+                  //  console.log(actorA)
+
+
+                   makeChartsPerWeek(currnentState)
+                  };
+                 var r = rating(ratingElement, currentRating, maxRating, callback);
+               }
+
+             })();
+
+
+            //  console.log(ratingScale(5)) // 100
+            //  console.log(ratingScale(3)) // 150
+
+
+          color.domain(d3.keys(data[0]).filter(function(key) { return key !== "date"; }));
+          color.domain(d3.keys(data2[0]).filter(function(key) { return key !== "date"; }));
+
+          var xAxis = d3.svg.axis()
+              .scale(x)
+              .orient("bottom")
+              // .ticks(6)
+              .ticks(d3.time.months, 1)
+              .tickFormat(d3.time.format("%b"));
+              // .tickFormat(d3.time.format("%m"))
+
+
+          var yAxis = d3.svg.axis()
+              .scale(y)
+              .orient("left")
+              .tickSize(-width)
+              .ticks(9)
+              .tickFormat(function(d) { if (d == 0) {
+                return "";}
+                else { return d/1000000}
+                // else { return "$" + d/1000000 + "m"}
+              });
+
+          var line = d3.svg.line()
+              .interpolate("step")
+              .x(function(d) { return x(d.date); })
+              .y(function(d) { return y(d.temperature); });
+
+
+          data.forEach(function(d) {
+            d.date = parseDate(d.date);
+          });
+
+          data2.forEach(function(d) {
+            d.date = parseDate(d.date);
+          });
+
+          var cities = color.domain().map(function(name) {
+            return {
+              name: name,
+              values: data.map(function(d) {
+                return {date: d.date, temperature: +d[name]};
+              })
+            };
+          });
+
+          var cities2 = color.domain().map(function(name) {
+            return {
+              name: name,
+              values: data2.map(function(d) {
+                return {date: d.date, temperature: +d[name]};
+              })
+            };
+          });
+
+          x.domain(d3.extent(data, function(d) { return d.date; }));
+          y.domain([0,  120000000]);
+
+          svg.append("g")
+              .attr("class", "x axis")
+              .attr("transform", "translate(5," + height + ")")
+              .call(xAxis)
+              .selectAll(".tick line")
+              .attr("transform", "translate(29,0)")
+
+          svg.append("g")
+              .attr("class", "y axis")
+              .call(yAxis)
+
+          var city = svg.selectAll(".city")
+              .data(cities2)
+              .enter()
+              .append("g")
+              .attr("class", "city")
+
+          city.append("path")
+              .attr("class", "line")
+              .attr("d", function(d) { return line(d.values); })
+              .style("stroke", function(d) { return color(d.name); })
+              .style("stroke-opacity", 0.7);
+
+              svg.append("g")
+              .attr("class", "baseline")
+              .attr("transform", "translate(5, "+ height +")")
+              .append("line")
+              .attr("x1", -20)
+              .attr("x2", width)
+              .attr("y2", 0)
+
+              ChangeBackground(currnentState);
+
+              function ChangeBackground(Stack) {
+
+                if (Stack == "W") {
+
+                            y.domain([0,  3000000]);
+
+                            city = d3.selectAll("path.line")
+                            .data(cities)
+                            .transition()
+                            .duration(1000)
+                            .attr("d", function(d) { return line(d.values); })
+                            .style("stroke", function(d) { return color(d.name); })
+                            .style("stroke-opacity", 0.7)
+                            // .exit().remove()
+
+                          // city.selectAll(".texts")
+                          //   // .data(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+                          //   .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")"; })
+
+
+                            svg.select(".y.axis")
+                            .transition()
+                            .duration(600)
+                            .call(yAxis);
+                } else {
+
+                  x.domain(d3.extent(data, function(d) { return d.date; }));
+
+                  y.domain([0,  120000000]);
+
+
+                            city = d3.selectAll("path.line")
+                            .data(cities2)
+                            .transition()
+                            .duration(1000)
+                            .attr("d", function(d) { return line(d.values); })
+                            .style("stroke", function(d) { return color(d.name); })
+                            .style("stroke-opacity", 0.7)
+                            // .exit().remove();
+
+                            city.selectAll(".texts")
+                              // .data(function(d) { return {name: d.name, value: d.values[d.values.length - 1]}; })
+                              .attr("transform", function(d) { return "translate(" + x(d.value.date) + "," + y(d.value.temperature) + ")"; })
+
+
+
+                            svg.select(".y.axis")
+                            .transition()
+                            .duration(600)
+                            .call(yAxis);
+                }
+
+
+
+              };
+
+
+}  // end of data loading function
+
+
+
+
+var parseDate2 = d3.time.format("%m/%d/%Y").parse;
+
+var dataNew = [];
+    var datafinal;
+
+
+
+function ageAnnotate(year, Ypos, text, id) {
+
+    svg.append("text")
+    .attr("class", "Annot" + id)
+    .attr("transform", "translate("+xA((year-0.8))+","+Ypos+")rotate(-0)")
+    .text(text);
+}
+
+function moveText (year, Ypos, newText, id) {
+    d3.select(".Annot" + id).transition().duration(750).text(newText)
+    .attr("transform", "translate("+xA((year-0.8))+","+Ypos+")rotate(-0)")
+
+}
+
+
+var focus = svg.append("g")
+    .attr("class", "focus")
+    .style("display", "none");
+
+focus.append("circle")
+    .attr("r", 4.5);
+
+focus.append("text")
+    .attr("x", 9)
+    .attr("dy", ".35em");
+
+
+
+var weekly_av_2015_16 =  907573.9;
+var weeklystde_2015_16 = 479660.8;
+
+
+var finalNum;
+
+
+
+function predictor (A2	,B2	,C2	,D2	,E2	,F2	,G2	,H2	,I2	,J2	,K2	,L2	,M2	,N2	,O2, weekly_av_2015_16, weeklystde_2015_16) {
+
+      ProbSellout = 1/
+          (
+            1+
+            (
+              Math.exp(
+                -(
+                  -(0.0042183*A2)
+                  +(0.0039907*B2)
+                  +(0.0000626*(Math.pow(A2, 2)))
+                  +(0.00000812*(Math.pow(B2, 2)))
+                  -(0.0007982*C2)
+                  +(0.0419669*((D2==47?1:0)))
+                  +(1.041139*(Math.pow(((D2==52?(6/7):(D2==53?3/7:0))), 2)))
+                  -(0.1213413*D2)
+                  +(0.0129541*(Math.pow(D2, 2)))
+                  -(0.0003998*(Math.pow(D2, 3)))
+                  +(0.00000373*(Math.pow(D2, 4)))
+                  -(0.4756087*E2)
+                  -(3.885171*F2)
+                  -(0.092289*G2*F2)
+                  +(1.883142*H2)
+                  -(0.0162975*I2)
+                  +(0.0839098*G2)
+                  +(0.1854669*J2)
+                  -(0.8336684*(1-J2))
+                  +(0.2028874*F2*K2)
+                  +(0.1258541*J2*F2)
+                  +(0.3561441*F2*(1-J2))
+                  -(0.470837*(Math.log(G2)))
+                  +(1.802581*F2*(Math.log(G2)))
+                  +(1.217256*(Math.log(L2)))
+                  -(0.5184693*F2*(Math.log(L2+1)))
+                  -(0.1466195*M2)
+                  -(0.157074*N2)
+                  +(0.0150286*(Math.log(O2+1)))
+                  -1.9122703
+                )
+              )
+            )
+        )
+
+    //   console.log(ProbSellout)
+
+  var ZIfSellout = ((-0.0016507*A2)
+    +(0.0052863*B2)
+    +(0.0000186*(Math.pow(A2, 2)))
+    -(0.0000205*(Math.pow(B2, 2)))
+    +(0.0015585*C2)
+    +(0.2960315*E2)
+    -(0.5571162*F2)
+    -(0.0105103*F2*G2)
+    +(0.0739237*H2)
+    -(0.100593*I2)
+    +(0.0156484*G2)
+    +(0.1381832*K2)
+    +(0.3338621*F2*(Math.log(G2)))
+    +(0.1955426*F2*(Math.log(L2+1)))
+    +(0.0734202*M2)
+    -(0.1991816*N2)-2.682552)
+
+  //   console.log(ZIfSellout)
+
+
+  var ZIfNoSellout = (
+          (0.0011112*B2)
+          +(0.0000139*(Math.pow(A2, 2)))
+          -(0.0007004*A2)
+          -(0.000000678*(Math.pow(B2, 2)))
+          +(0.2004303*E2)
+          -(1.477247*F2)
+          -(0.006352*F2*G2)
+          +(0.38273282*H2)
+          +(0.0155657*G2)
+          +(0.1257408*F2*K2)
+          +(0.5647975*F2*(Math.log(G2)))
+          +(0.1675119*(Math.log(L2+1)))
+          +(0.1041002*M2)
+          +(0.0932572*N2)
+          -1.186324)
+
+  var projZ =(ProbSellout*ZIfSellout)+((1-ProbSellout)*ZIfNoSellout)
+
+//   console.log(projZ)
+
+  var WeekAvRatio = (
+        (0.1219971*((D2==47?1:0)))
+        +(0.3760431*(Math.pow(((D2==52?(6/7):(D2==53?3/7:0))), 2)))
+        -(0.0392583*D2)
+        +(0.0030492*(Math.pow(D2, 2)))
+        -(0.0000761*(Math.pow(D2, 3)))
+        +(0.000000606*(Math.pow(D2, 4)))
+        +1.052012
+        )
+
+//   console.log(WeekAvRatio)
+
+  var WeekStdevRatio = (
+    (0.040333*((D2==47?1:0)))
+    +(0.4126905*(((D2==52?(6/7):(D2==53?3/7:0)))))
+    -(0.5734843*(Math.pow(((D2==52?(6/7):(D2==53?3/7:0))), 2)))
+    +(0.0358187*D2)
+    -(0.0022887*(Math.pow(D2, 2)))
+    +(0.0000488*(Math.pow(D2, 3)))
+    -(0.000000324*(Math.pow(D2, 4)))
+    +0.8853995
+    )
+
+//     console.log("projZ " + projZ + ", " +
+//                 "WeekStdevRatio " + WeekStdevRatio + ", " +
+//                 "weeklystde_2015_16 " + weeklystde_2015_16 + ", " +
+//                 "WeekAvRatio " + WeekAvRatio + ", " +
+//                 "weekly_av_2015_16 " + weekly_av_2015_16 + ", "
+//                 )
+
+      var ProjGross =(projZ*WeekStdevRatio*weeklystde_2015_16)+(WeekAvRatio*weekly_av_2015_16)
+
+      finalNum =  ProjGross.toFixed();
+
+//       var Revenue = d3.select("#result").append("text")
+//       .text(finalNum + "$ USD").style("font-size", 30)
+//       console.log(finalNum)
+      return finalNum;
+
+
+} // end of predictor function
+
+
+
+   /// Calculate the x and y, and path for the projection line:
+   var datas = [];
+//    var array = d3.range(1, 53);
+
+    var array2015 = d3.range(30, 54)
+    var array2016 = d3.range(0, 17)
+    array = array2015.concat(array2016)
+
+
+    // predictor function call
+    predictor(A2, B2	,C2 ,D2, E2	,F2	,G2	,H2	,I2	,J2	,K2	,L2	,M2	,N2	,O2, weekly_av_2015_16, weeklystde_2015_16)
+
+    //
+    var x33 = d3.time.scale()
+        .range([0, width]);
+
+    // var y = d3.scale.linear()
+    //     .range([height, 0]);
+
+//////////////////////////////////////////////////////////////////////////
+//     var arr = [];
+//
+//     array.forEach(function(d, i) {
+//       D2 = d;
+//       arr.push(+(predictor(A2,B2,C2,D2,E2 ,F2 ,G2	,H2	,I2	,J2	,K2	,L2	,M2	,N2	,O2,weekly_av_2015_16,weeklystde_2015_16)))
+//       })
+//
+//       var new_array = arr.concat();
+//       for (var i = 1; i < arr.length; i++) {
+//         new_array[i] = new_array[i-1] + arr[i];
+//       }
+//
+//       var new_array = [];
+//       arr.reduce(function(a,b,i) { return new_array[i] = a+b; },0);
+// //       console.log(new_array)
+//
+//      var parseWeek = d3.time.format("%W")
+//
+//       array.forEach(function(d, i) {
+//           datas.push({x3: i, y3: new_array[i]})
+//           })
+//
+//       x33.domain([1,40]);
+//       y.domain([0, 120000000]);
+//////////////////////////////////////////////////////////////////////////
+
+//////////////////////////////////////////////////////////////////////////
+      datas = [];
+      arr = [];
+
+      array.forEach(function(d, i) {
+      D2 = d;
+      arr.push(+(predictor(A2,B2,C2,D2,E2 ,F2 ,G2	,H2	,I2	,J2	,K2	,L2	,M2	,N2	,O2, weekly_av_2015_16, weeklystde_2015_16)))
+      })
+
+      array.forEach(function(d, i) {
+      D2 = d;
+      datas.push({x3: i, y3: +(predictor(A2,B2,C2,D2,E2 ,F2 ,G2	,H2	,I2	,J2	,K2	,L2	,M2	,N2	,O2,weekly_av_2015_16, weeklystde_2015_16))})
+      })
+
+      // x33.domain([0,52]);
+      x33.domain([1,40]);
+
+      y.domain([0, 3000000]);
+//////////////////////////////////////////////////////////////////////////
+
+
+
+    var line4 = d3.svg.line()
+      .interpolate("step")
+      .x(function(d) { return x33(d.x3); })
+      .y(function(d) { return y(d.y3); });
+
+    var linegraph4 =  svg.append("path")
+      .attr("class", "line4")
+      .attr('d', function(d){return line4(datas)})
+      .style("stroke", "#ed113a")
+      .style("fill", "none")
+      .style("stroke-width", 2)
+      .style("stroke-opacity", 1)
+      .attr("transform", "translate(13, 0)");
+
+
+
+
+function makeChartsPerWeek(Stack) {
+
+  if (Stack == "W") {
+
+            d3.select("#RevSwitch").text("weekly, $m")
+
+
+            // moveText(1.1,320, "Average gross revenue across Broadway shows", 0);
+            // moveText(1.3,260, "Hamilton's success peaked over New Year", 1);
+            //
+
+            datas = [];
+            arr = [];
+
+            array.forEach(function(d, i) {
+            D2 = d;
+            arr.push(+(predictor(A2,B2,C2,D2,E2 ,F2 ,G2	,H2	,I2	,J2	,K2	,L2	,M2	,N2	,O2, weekly_av_2015_16,weeklystde_2015_16)))
+            })
+
+            array.forEach(function(d, i) {
+            D2 = d;
+            datas.push({x3: i, y3: +(predictor(A2,B2,C2,D2,E2 ,F2 ,G2	,H2	,I2	,J2	,K2	,L2	,M2	,N2	,O2, weekly_av_2015_16,weeklystde_2015_16))})
+            })
+
+            // x33.domain([0,52]);
+            x33.domain([1,40]);
+            y.domain([0, 3000000]);
+
+            var line4 = d3.svg.line()
+            .interpolate("step")
+            .x(function(d) { return x33(d.x3); })
+            .y(function(d) { return y(d.y3); });
+
+            d3.select(".line4")
+            .transition().duration(1000)
+            .attr('d', function(d){return line4(datas)})
+
+
+            // console.log(_.mean(arr))
+
+
+  } else {
+            d3.select("#RevSwitch").text("cumulative, $m")
+
+            // moveText(1.1,100, "Use the handles to alter your show's revenues", 0);
+            // moveText(1.3,333, "Broadway's average show makes around $22m per year", 1);
+            //
+
+            datas = [];
+            arr = [];
+
+            predictor(A2,B2	,C2 ,D2, E2	,F2	,G2	,H2	,I2	,J2	,K2	,L2	,M2	,N2	,O2,weekly_av_2015_16,weeklystde_2015_16)
+
+            array.forEach(function(d, i) {
+            D2 = d;
+            arr.push(+(predictor(A2,B2,C2,D2,E2 ,F2 ,G2	,H2	,I2	,J2	,K2	,L2	,M2	,N2	,O2,weekly_av_2015_16,weeklystde_2015_16)))
+            })
+
+
+            new_array = arr.concat();
+            for (var i = 1; i < arr.length; i++) {
+            new_array[i] = new_array[i-1] + arr[i];
+            }
+
+
+            new_array = [];
+            arr.reduce(function(a,b,i) { return new_array[i] = a+b; },0);
+            //       console.log(new_array)
+
+            array.forEach(function(d, i) {
+            datas.push({x3: i, y3: new_array[i]})
+            })
+
+            // x33.domain([0,52]);
+            x33.domain([1,40]);
+            y.domain([0, 120000000]);
+
+            var line4 = d3.svg.line()
+            .interpolate("step")
+            .x(function(d) { return x33(d.x3); })
+            .y(function(d) { return y(d.y3); });
+
+            d3.select(".line4").transition().duration(1000)
+            .attr('d', function(d){return line4(datas)})
+
+            // svg.select(".y.axis")
+            // .transition()
+            // .duration(600)
+            // .call(yAxis);
+
+  }
+
+  d3.select("div.lineValCSS.YP")
+    .transition().ease("quad-out")
+    .duration(2000).delay(0)
+    .tween("text", function(d) {
+      var contents = this.textContent;
+      var i = d3.interpolate(contents, formatValue((_.mean(arr)/1000000)));
+      return function(t) {
+        d3.select(this).text("$" + formatValue(i(t)) + "m");
+      };
+    });
+
+};
+
+d3.select("div.lineValCSS.YP")
+  .transition().ease("quad-out")
+  .duration(900).delay(0)
+  .tween("text", function(d) {
+    var contents = this.textContent;
+    var i = d3.interpolate(contents, formatValue((_.mean(arr)/1000000)));
+    return function(t) {
+      d3.select(this).text("$" + formatValue(i(t)) + "m");
+    };
+  });
+
+
+  </script>
+</body>
